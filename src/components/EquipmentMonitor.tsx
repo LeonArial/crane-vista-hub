@@ -1,150 +1,60 @@
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { EquipmentCard } from "./EquipmentCard";
 import { EquipmentDetails } from "./EquipmentDetails";
-import { Construction, Truck, RefreshCw } from "lucide-react";
+import { Construction, Truck, RefreshCw, Loader2, AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+// Updated types to match backend API response
 type EquipmentType = 'crane' | 'mixer';
 
-interface Equipment {
-  id: string;
+export interface Equipment {
+  id: number;
   name: string;
   code: string;
   status: 'online' | 'offline' | 'warning' | 'maintenance';
   location: string;
   type: EquipmentType;
   workingHours: number;
-  equipmentCondition: '完好' | '损坏未保修' | '损坏已保修' | '报废';
-  lastUpdate: string;
-  // 塔吊特有数据
-  cabinTemp?: {
-    inside: number;
-    outside: number;
-  };
+  equipmentCondition: string;
+  lastUpdate: string; // ISO-8601 date string
+  cabinTempInside?: number;
+  cabinTempOutside?: number;
   humidity?: number;
   windSpeed?: number;
-  lastMaintenance?: string;
-  nextMaintenance?: string;
-  // 混凝土搅拌机特有数据
+  lastMaintenance?: string; // Date string
+  nextMaintenance?: string; // Date string
   mixingTemp?: number;
   mixingSpeed?: number;
   productionRate?: number;
 }
 
-// 模拟数据
-const mockEquipment: Equipment[] = [
-  // 塔吊数据
-  {
-    id: '1',
-    name: '塔吊-001',
-    code: 'TC-001',
-    status: 'online',
-    location: 'A区-1号楼',
-    type: 'crane',
-    workingHours: 127,
-    equipmentCondition: '完好',
-    lastUpdate: '2024-01-30 14:23:15',
-    cabinTemp: { inside: 24, outside: 18 },
-    humidity: 65,
-    windSpeed: 3.2,
-    lastMaintenance: '2024-01-20',
-    nextMaintenance: '2024-02-20'
-  },
-  {
-    id: '2',
-    name: '塔吊-002',
-    code: 'TC-002',
-    status: 'warning',
-    location: 'A区-2号楼',
-    type: 'crane',
-    workingHours: 89,
-    equipmentCondition: '损坏已保修',
-    lastUpdate: '2024-01-30 14:22:45',
-    cabinTemp: { inside: 26, outside: 18 },
-    humidity: 70,
-    windSpeed: 4.1,
-    lastMaintenance: '2024-01-15',
-    nextMaintenance: '2024-02-15'
-  },
-  {
-    id: '3',
-    name: '塔吊-003',
-    code: 'TC-003',
-    status: 'offline',
-    location: 'B区-1号楼',
-    type: 'crane',
-    workingHours: 234,
-    equipmentCondition: '损坏未保修',
-    lastUpdate: '2024-01-30 12:15:30',
-    cabinTemp: { inside: 20, outside: 18 },
-    humidity: 55,
-    windSpeed: 2.8,
-    lastMaintenance: '2024-01-10',
-    nextMaintenance: '2024-02-10'
-  },
-  // 混凝土搅拌机数据
-  {
-    id: '4',
-    name: '搅拌机-001',
-    code: 'CM-001',
-    status: 'online',
-    location: '搅拌站-A',
-    type: 'mixer',
-    workingHours: 156,
-    equipmentCondition: '完好',
-    lastUpdate: '2024-01-30 14:24:10',
-    mixingTemp: 35,
-    mixingSpeed: 45,
-    productionRate: 92,
-    lastMaintenance: '2024-01-25',
-    nextMaintenance: '2024-02-25'
-  },
-  {
-    id: '5',
-    name: '搅拌机-002',
-    code: 'CM-002',
-    status: 'maintenance',
-    location: '搅拌站-B',
-    type: 'mixer',
-    workingHours: 203,
-    equipmentCondition: '报废',
-    lastUpdate: '2024-01-30 10:30:00',
-    mixingTemp: 28,
-    mixingSpeed: 0,
-    productionRate: 0,
-    lastMaintenance: '2024-01-30',
-    nextMaintenance: '2024-03-01'
-  },
-  {
-    id: '6',
-    name: '搅拌机-003',
-    code: 'CM-003',
-    status: 'online',
-    location: '搅拌站-C',
-    type: 'mixer',
-    workingHours: 98,
-    equipmentCondition: '完好',
-    lastUpdate: '2024-01-30 14:23:55',
-    mixingTemp: 32,
-    mixingSpeed: 42,
-    productionRate: 88,
-    lastMaintenance: '2024-01-18',
-    nextMaintenance: '2024-02-18'
+// Function to fetch equipment data from the backend
+const fetchEquipment = async (): Promise<Equipment[]> => {
+  const response = await fetch('http://localhost:8080/api/equipment');
+  if (!response.ok) {
+    throw new Error('网络响应错误');
   }
-];
+  return response.json();
+};
 
 export function EquipmentMonitor() {
   const [selectedType, setSelectedType] = useState<EquipmentType>('crane');
   const [selectedEquipment, setSelectedEquipment] = useState<Equipment | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
 
-  const filteredEquipment = mockEquipment.filter(eq => eq.type === selectedType);
+  const { data: allEquipment = [], isLoading, isError, refetch } = useQuery<Equipment[]>({
+    queryKey: ['equipment'],
+    queryFn: fetchEquipment,
+  });
+
+  const filteredEquipment = allEquipment.filter(eq => eq.type === selectedType);
 
   const getTypeStats = (type: EquipmentType) => {
-    const equipment = mockEquipment.filter(eq => eq.type === type);
-    const online = equipment.filter(eq => eq.status === 'online').length;
-    const total = equipment.length;
+    const equipmentOfType = allEquipment.filter(eq => eq.type === type);
+    const online = equipmentOfType.filter(eq => eq.status === 'online').length;
+    const total = equipmentOfType.length;
     return { online, total };
   };
 
@@ -168,7 +78,7 @@ export function EquipmentMonitor() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* 页头 */}
+      {/* Header */}
       <div className="border-b border-border/40 bg-gradient-to-r from-card to-secondary/20">
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
@@ -176,8 +86,8 @@ export function EquipmentMonitor() {
               <h1 className="text-3xl font-bold">工程设备监控平台</h1>
               <p className="text-muted-foreground mt-1">实时监控设备运行状态</p>
             </div>
-            <Button variant="outline" size="sm" className="gap-2">
-              <RefreshCw className="w-4 h-4" />
+            <Button variant="outline" size="sm" className="gap-2" onClick={() => refetch()}>
+              <RefreshCw className={cn("w-4 h-4", isLoading && "animate-spin")} />
               刷新数据
             </Button>
           </div>
@@ -185,7 +95,7 @@ export function EquipmentMonitor() {
       </div>
 
       <div className="container mx-auto px-4 py-6">
-        {/* 设备类别选择 */}
+        {/* Equipment Type Selection */}
         <div className="flex gap-4 mb-8">
           {Object.entries(typeConfig).map(([type, config]) => {
             const IconComponent = config.icon;
@@ -201,12 +111,13 @@ export function EquipmentMonitor() {
                   "flex items-center gap-3 px-6 py-4 h-auto",
                   isActive && "bg-primary text-primary-foreground shadow-[0_0_20px_hsl(var(--primary)_/_0.3)]"
                 )}
+                disabled={isLoading}
               >
                 <IconComponent className="w-5 h-5" />
                 <div className="text-left">
                   <div className="font-semibold">{config.label}</div>
                   <div className="text-xs opacity-80">
-                    {config.stats.online}/{config.stats.total} 在线
+                    {isLoading ? '加载中...' : `${config.stats.online}/${config.stats.total} 在线`}
                   </div>
                 </div>
               </Button>
@@ -214,24 +125,36 @@ export function EquipmentMonitor() {
           })}
         </div>
 
-        {/* 设备状态概览 */}
+        {/* Equipment Status Overview */}
         <div className="mb-6">
           <h2 className="text-xl font-semibold mb-4">
             {typeConfig[selectedType].label}状态概览
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredEquipment.map((equipment) => (
-              <EquipmentCard
-                key={equipment.id}
-                equipment={equipment}
-                onClick={() => handleEquipmentClick(equipment)}
-              />
-            ))}
-          </div>
+          {isLoading ? (
+            <div className="flex justify-center items-center h-64">
+              <Loader2 className="w-12 h-12 animate-spin text-primary" />
+            </div>
+          ) : isError ? (
+            <div className="flex flex-col items-center justify-center h-64 bg-destructive/10 text-destructive rounded-lg">
+                <AlertTriangle className="w-12 h-12 mb-4" />
+                <p className="text-lg font-semibold">数据加载失败</p>
+                <p>请检查后端服务是否正在运行，并刷新页面。</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredEquipment.map((equipment) => (
+                <EquipmentCard
+                  key={equipment.id}
+                  equipment={equipment}
+                  onClick={() => handleEquipmentClick(equipment)}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
-      {/* 设备详情弹窗 */}
+      {/* Equipment Details Modal */}
       <EquipmentDetails
         equipment={selectedEquipment}
         isOpen={isDetailsOpen}

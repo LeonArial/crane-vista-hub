@@ -12,10 +12,8 @@ interface EquipmentDetailsData {
   location: string;
   type: string;
   // 塔吊特有数据
-  cabinTemp?: {
-    inside: number;
-    outside: number;
-  };
+  cabinTempInside?: number;
+  cabinTempOutside?: number;
   humidity?: number;
   windSpeed?: number;
   workingHours: number;
@@ -51,13 +49,13 @@ export function EquipmentDetails({ equipment, isOpen, onClose }: EquipmentDetail
             <div className="flex justify-between">
               <span className="text-muted-foreground">室内温度</span>
               <span className="font-mono text-lg text-data-primary">
-                {equipment.cabinTemp?.inside}°C
+                {equipment.cabinTempInside ?? '-'}°C
               </span>
             </div>
             <div className="flex justify-between">
               <span className="text-muted-foreground">室外温度</span>
               <span className="font-mono text-lg text-data-secondary">
-                {equipment.cabinTemp?.outside}°C
+                {equipment.cabinTempOutside ?? '-'}°C
               </span>
             </div>
           </div>
