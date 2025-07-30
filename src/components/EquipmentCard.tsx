@@ -11,7 +11,7 @@ interface EquipmentData {
   location: string;
   lastUpdate: string;
   workingHours: number;
-  efficiency: number;
+  equipmentCondition: '完好' | '损坏未保修' | '损坏已保修' | '报废';
 }
 
 interface EquipmentCardProps {
@@ -21,10 +21,14 @@ interface EquipmentCardProps {
 }
 
 export function EquipmentCard({ equipment, onClick, className }: EquipmentCardProps) {
-  const getEfficiencyColor = (efficiency: number) => {
-    if (efficiency >= 90) return 'text-status-online';
-    if (efficiency >= 70) return 'text-status-warning';
-    return 'text-status-offline';
+  const getConditionColor = (condition: string) => {
+    switch (condition) {
+      case '完好': return 'text-status-online';
+      case '损坏未保修': return 'text-status-offline';
+      case '损坏已保修': return 'text-status-warning';
+      case '报废': return 'text-destructive';
+      default: return 'text-muted-foreground';
+    }
   };
 
   return (
@@ -59,9 +63,9 @@ export function EquipmentCard({ equipment, onClick, className }: EquipmentCardPr
             </div>
           </div>
           <div>
-            <span className="text-muted-foreground">工作效率</span>
-            <div className={cn("font-mono font-semibold", getEfficiencyColor(equipment.efficiency))}>
-              {equipment.efficiency}%
+            <span className="text-muted-foreground">设备状态</span>
+            <div className={cn("font-mono font-semibold", getConditionColor(equipment.equipmentCondition))}>
+              {equipment.equipmentCondition}
             </div>
           </div>
         </div>

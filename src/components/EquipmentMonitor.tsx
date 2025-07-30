@@ -15,7 +15,7 @@ interface Equipment {
   location: string;
   type: EquipmentType;
   workingHours: number;
-  efficiency: number;
+  equipmentCondition: '完好' | '损坏未保修' | '损坏已保修' | '报废';
   lastUpdate: string;
   // 塔吊特有数据
   cabinTemp?: {
@@ -43,7 +43,7 @@ const mockEquipment: Equipment[] = [
     location: 'A区-1号楼',
     type: 'crane',
     workingHours: 127,
-    efficiency: 95,
+    equipmentCondition: '完好',
     lastUpdate: '2024-01-30 14:23:15',
     cabinTemp: { inside: 24, outside: 18 },
     humidity: 65,
@@ -59,7 +59,7 @@ const mockEquipment: Equipment[] = [
     location: 'A区-2号楼',
     type: 'crane',
     workingHours: 89,
-    efficiency: 78,
+    equipmentCondition: '损坏已保修',
     lastUpdate: '2024-01-30 14:22:45',
     cabinTemp: { inside: 26, outside: 18 },
     humidity: 70,
@@ -75,7 +75,7 @@ const mockEquipment: Equipment[] = [
     location: 'B区-1号楼',
     type: 'crane',
     workingHours: 234,
-    efficiency: 0,
+    equipmentCondition: '损坏未保修',
     lastUpdate: '2024-01-30 12:15:30',
     cabinTemp: { inside: 20, outside: 18 },
     humidity: 55,
@@ -92,7 +92,7 @@ const mockEquipment: Equipment[] = [
     location: '搅拌站-A',
     type: 'mixer',
     workingHours: 156,
-    efficiency: 92,
+    equipmentCondition: '完好',
     lastUpdate: '2024-01-30 14:24:10',
     mixingTemp: 35,
     mixingSpeed: 45,
@@ -108,7 +108,7 @@ const mockEquipment: Equipment[] = [
     location: '搅拌站-B',
     type: 'mixer',
     workingHours: 203,
-    efficiency: 0,
+    equipmentCondition: '报废',
     lastUpdate: '2024-01-30 10:30:00',
     mixingTemp: 28,
     mixingSpeed: 0,
@@ -124,7 +124,7 @@ const mockEquipment: Equipment[] = [
     location: '搅拌站-C',
     type: 'mixer',
     workingHours: 98,
-    efficiency: 88,
+    equipmentCondition: '完好',
     lastUpdate: '2024-01-30 14:23:55',
     mixingTemp: 32,
     mixingSpeed: 42,

@@ -19,7 +19,7 @@ interface EquipmentDetailsData {
   humidity?: number;
   windSpeed?: number;
   workingHours: number;
-  efficiency: number;
+  equipmentCondition: '完好' | '损坏未保修' | '损坏已保修' | '报废';
   lastMaintenance?: string;
   nextMaintenance?: string;
   // 混凝土搅拌机特有数据
@@ -96,12 +96,12 @@ export function EquipmentDetails({ equipment, isOpen, onClose }: EquipmentDetail
         <CardHeader className="pb-3">
           <CardTitle className="text-sm flex items-center gap-2">
             <Gauge className="w-4 h-4 text-status-online" />
-            工作效率
+            设备状态
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-mono text-status-online">
-            {equipment.efficiency}%
+          <div className="text-lg font-mono font-semibold text-status-online">
+            {equipment.equipmentCondition}
           </div>
         </CardContent>
       </Card>
