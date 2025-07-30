@@ -1,5 +1,7 @@
-import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useState, useEffect } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { Client } from "@stomp/stompjs";
+import SockJS from "sockjs-client";
 import { Button } from "@/components/ui/button";
 import { EquipmentCard } from "./EquipmentCard";
 import { EquipmentDetails } from "./EquipmentDetails";
@@ -44,10 +46,47 @@ export function EquipmentMonitor() {
   const [selectedEquipment, setSelectedEquipment] = useState<Equipment | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
 
+  const queryClient = useQueryClient();
+
   const { data: allEquipment = [], isLoading, isError, refetch } = useQuery<Equipment[]>({
     queryKey: ['equipment'],
     queryFn: fetchEquipment,
+    staleTime: Infinity, // 数据通过 WebSocket 实时更新，因此将 HTTP 拉取的数据标记为永不过期
   });
+
+  useEffect(() => {
+    // 创建一个 Stomp 客户端实例
+    const stompClient = new Client({
+      // 使用 SockJS 作为 WebSocket 的备用方案，增强浏览器兼容性
+      webSocketFactory: () => new SockJS('http://localhost:8080/ws'),
+      // 设置连接成功时的回调
+      onConnect: () => {
+        console.log('WebSocket Connected!');
+        // 订阅后端的 /topic/equipment-updates 主题
+        stompClient.subscribe('/topic/equipment-updates', (message) => {
+          const updatedEquipment = JSON.parse(message.body);
+          // 使用从 WebSocket 收到的新数据更新 React Query 的缓存
+          queryClient.setQueryData(['equipment'], updatedEquipment);
+        });
+      },
+      // 连接失败或断开时的日志
+      onStompError: (frame) => {
+        console.error('Broker reported error: ' + frame.headers['message']);
+        console.error('Additional details: ' + frame.body);
+      },
+      // 设置自动重连延迟（毫秒）
+      reconnectDelay: 5000,
+    });
+
+    // 激活客户端，开始连接
+    stompClient.activate();
+
+    // 组件卸载时，停用客户端，断开连接
+    return () => {
+      stompClient.deactivate();
+      console.log('WebSocket Disconnected!');
+    };
+  }, [queryClient]); // 依赖项中包含 queryClient
 
   const filteredEquipment = allEquipment.filter(eq => eq.type === selectedType);
 
