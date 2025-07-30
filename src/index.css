@@ -8,35 +8,56 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* 工业监控深色主题 */
+    --background: 220 13% 9%;
+    --foreground: 220 9% 95%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card: 220 13% 12%;
+    --card-foreground: 220 9% 95%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover: 220 13% 12%;
+    --popover-foreground: 220 9% 95%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 201 96% 32%;
+    --primary-foreground: 220 9% 95%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 220 13% 18%;
+    --secondary-foreground: 220 9% 95%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 220 13% 15%;
+    --muted-foreground: 220 9% 65%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 142 76% 36%;
+    --accent-foreground: 220 9% 95%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 220 9% 95%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --border: 220 13% 20%;
+    --input: 220 13% 18%;
+    --ring: 201 96% 32%;
 
-    --radius: 0.5rem;
+    /* 监控专用颜色 */
+    --status-online: 142 76% 36%;
+    --status-offline: 0 84% 60%;
+    --status-warning: 38 92% 50%;
+    --status-maintenance: 220 9% 65%;
+    
+    /* 数据显示 */
+    --data-primary: 201 96% 32%;
+    --data-secondary: 142 76% 36%;
+    --data-accent: 271 81% 56%;
+    
+    /* 渐变 */
+    --gradient-primary: linear-gradient(135deg, hsl(220 13% 12%), hsl(220 13% 18%));
+    --gradient-card: linear-gradient(135deg, hsl(220 13% 12%) 0%, hsl(220 13% 15%) 100%);
+    --gradient-status: linear-gradient(90deg, hsl(142 76% 36%) 0%, hsl(142 76% 46%) 100%);
+    
+    /* 阴影 */
+    --shadow-card: 0 4px 12px hsl(220 13% 5% / 0.3);
+    --shadow-status: 0 0 20px hsl(var(--status-online) / 0.3);
+    
+    --radius: 0.75rem;
 
     --sidebar-background: 0 0% 98%;
 
