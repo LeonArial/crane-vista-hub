@@ -11,7 +11,7 @@ interface EquipmentData {
   location: string;
   lastUpdate: string;
   workingHours: number;
-  equipmentCondition: '完好' | '损坏未保修' | '损坏已保修' | '报废';
+  equipmentCondition: '完好' | '损坏未报修' | '损坏已报修' | '报废';
 }
 
 interface EquipmentCardProps {
@@ -24,8 +24,8 @@ export function EquipmentCard({ equipment, onClick, className }: EquipmentCardPr
   const getConditionColor = (condition: string) => {
     switch (condition) {
       case '完好': return 'text-status-online';
-      case '损坏未保修': return 'text-status-offline';
-      case '损坏已保修': return 'text-status-warning';
+      case '损坏未报修': return 'text-status-offline';
+      case '损坏已报修': return 'text-status-warning';
       case '报废': return 'text-destructive';
       default: return 'text-muted-foreground';
     }

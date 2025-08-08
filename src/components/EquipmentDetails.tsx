@@ -17,7 +17,7 @@ interface EquipmentDetailsData {
   humidity?: number;
   windSpeed?: number;
   workingHours: number;
-  equipmentCondition: '完好' | '损坏未保修' | '损坏已保修' | '报废';
+  equipmentCondition: '完好' | '损坏未报修' | '损坏已报修' | '报废';
   lastMaintenance?: string;
   nextMaintenance?: string;
   // 混凝土搅拌机特有数据
