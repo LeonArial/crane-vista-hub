@@ -125,10 +125,6 @@ export function EquipmentMonitor() {
               <h1 className="text-3xl font-bold">工程设备监控平台</h1>
               <p className="text-muted-foreground mt-1">实时监控设备运行状态</p>
             </div>
-            <Button variant="outline" size="sm" className="gap-2" onClick={() => refetch()}>
-              <RefreshCw className={cn("w-4 h-4", isLoading && "animate-spin")} />
-              刷新数据
-            </Button>
           </div>
         </div>
       </div>
